@@ -1,0 +1,30 @@
+# compose.yml
+services:
+    yt:
+        build: 
+            context: .
+            dockerfile: Dockerfile
+        image: teste_f5
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                        - driver: nvidia
+                          count: 1
+                          capabilities: [gpu]
+        environment:
+            - DISPLAY=:0
+            - NVIDIA_DRIVER_CAPABILITIES=all
+            - NVIDIA_VISIBLE_DEVICES=all
+            - DEBUG_COLORS=1
+            - TERM=xterm-256color
+            - COLORTERM=truecolor
+            - CHOKIDAR_USEPOLLING=true
+        volumes:
+            - ./:/app:rw
+            - ./F5-TTS:/app/F5-TTS
+            - ./data/huggingface_cache:/root/.cache/huggingface
+            - ./data/pip_cache:/root/.cache/pip
+            
+        stdin_open: true  # entrada interativa
+        tty: true
