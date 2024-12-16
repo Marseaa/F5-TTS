@@ -1,0 +1,27 @@
+Word segmentation module jieba initialized.
+
+Download Vocos from huggingface charactr/vocos-mel-24khz
+Using F5-TTS...
+
+vocab :  /workspace/F5-TTS/src/f5_tts/infer/examples/vocab.txt
+token :  custom
+model :  /root/.cache/huggingface/hub/models--SWivid--F5-TTS/snapshots/4dcc16f297f2ff98a17b3726b16f5de5a5e45672/F5TTS_Base/model_1200000.safetensors 
+
+Voice: main
+ref_audio  audio_teste.wav
+Converting audio...
+Audio is over 15s, clipping short. (2)
+Using custom reference text...
+
+ref_text   Seu amor, DF, Raimundo Alves, com quem eu falo?  Oi, é a enfermeira Letícia, do Trauma.  Quero pedir uma remoção.  É o primeiro contato?  É.  É um transporte?  É, transporte para fazer tomografia.  Qual o hospital de origem?  Hospital de base.  E o hospital de destino?  H-RAM.  Qual o nome do paciente?  José Jorge da Silva.  Qual a idade dele?  61.  Correto.  Enfermeira Letícia, confirmando os dados, o hospital de origem é o hospital de base do DF.  Sim.  E o hospital de destino é o H-RAM.  Isso.  Hospital Regional da Zona Norte, não é isso?  Sim, é Centro de Trauma do Hospital de Base.  Correto.  O nome do paciente é José Jorge da Silva, 61 anos.  Isso.  É um transporte?  Isso.  Aguarde em linha que eu vou vir para o setor responsável.  Tá bem, obrigada.  Peço que não desliga. Aguarde em linha.  Tá, obrigada.  Obrigada. 
+ref_audio_ /tmp/tmp_712syk0.wav 
+
+
+No voice tag found, using main.
+Voice: main
+gen_text 0 Seu amor, DF, Raimundo Alves, com quem eu falo? Oi, é a enfermeira Letícia, do Trauma. Quero pedir uma remoção. É o primeiro contato? É. É um transporte? É, transporte para fazer tomografia. Qual o hospital de origem? Hospital de base. E o hospital de destino? H-RAM. Qual o nome do paciente? José Jorge da Silva. Qual a idade dele? 61. Correto. Enfermeira Letícia, confirmando os dados, o hospital de origem é o hospital de base do DF. Sim. E o hospital de destino é o H-RAM. Isso. Hospital Regional da Zona Norte, não é isso? Sim, é Centro de Trauma do Hospital de Base. Correto.
+gen_text 1 O nome do paciente é José Jorge da Silva, 61 anos. Isso. É um transporte? Isso. Aguarde em linha que eu vou vir para o setor responsável. Tá bem, obrigada. Peço que não desliga. Aguarde em linha. Tá, obrigada. Obrigada.
+
+
+Generating audio in 2 batches...
+tests/infer_cli_basic.wav

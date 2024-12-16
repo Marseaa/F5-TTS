@@ -4,7 +4,7 @@ services:
         build: 
             context: .
             dockerfile: Dockerfile
-        image: teste_f5
+        image: teste_f5tts
         deploy:
             resources:
                 reservations:
@@ -23,8 +23,11 @@ services:
         volumes:
             - ./:/app:rw
             - ./F5-TTS:/app/F5-TTS
+            - ./output_audio:/app/output_audio
             - ./data/huggingface_cache:/root/.cache/huggingface
             - ./data/pip_cache:/root/.cache/pip
             
-        stdin_open: true  # entrada interativa
+        ports:
+        - "7860:7860"  # Mapeia a porta 7860 do contêiner para a porta 7860 do host
+        stdin_open: true  # Entrada interativa
         tty: true
