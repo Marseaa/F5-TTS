@@ -1,6 +1,9 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Teste---F5-TTS
 =======
+=======
+>>>>>>> 0aa907a0b862c2b95a3c5f3948c013895cae27da
 # F5-TTS: A Fairytaler that Fakes Fluent and Faithful Speech with Flow Matching
 
 [![python](https://img.shields.io/badge/Python-3.10-brightgreen)](https://github.com/SWivid/F5-TTS)
@@ -173,4 +176,7 @@ If our work and codebase is useful for you, please cite as:
 ## License
 
 Our code is released under MIT License. The pre-trained models are licensed under the CC-BY-NC license due to the training data Emilia, which is an in-the-wild dataset. Sorry for any inconvenience this may cause.
+<<<<<<< HEAD
 >>>>>>> 61f28ee8a595fe89a2ee2d1f1d4424d260028bc6
+=======
+>>>>>>> 0aa907a0b862c2b95a3c5f3948c013895cae27da
