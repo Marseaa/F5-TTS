@@ -20,6 +20,7 @@ services:
             - TERM=xterm-256color
             - COLORTERM=truecolor
             - CHOKIDAR_USEPOLLING=true
+            - PYTHONPATH=${PYTHONPATH}:/app/F5TTS
         volumes:
             - ./:/app:rw
             - ./F5-TTS:/app/F5-TTS

@@ -47,6 +47,11 @@ RUN git clone https://github.com/SWivid/F5-TTS.git \
     && sed -i '7iimport sys\nsys.path.append(os.path.dirname(os.path.abspath(__file__)))' src/third_party/BigVGAN/bigvgan.py \
     && pip install -e . --no-cache-dir
 
+RUN pip install appPublic
+RUN pip install statsmodels
+
+ENV PYTHONPATH $PYTHONPATH:/app/F5TTS
+
 ENV NVIDIA_VISIBLE_DEVICES all
 WORKDIR /app
 
