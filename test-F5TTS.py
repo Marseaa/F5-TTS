@@ -196,3 +196,4 @@ if __name__ == '__main__':
             t2 = time()
             print(f'{f}, cost {t2-t1} seconds')
 
+# ainda com erro na função load_model
