@@ -112,7 +112,6 @@ class MelSpec(nn.Module):
         mel_spec_type="vocos",
     ):
         super().__init__()
-        assert mel_spec_type in ["vocos", "bigvgan"], print("We only support two extract mel backend: vocos or bigvgan")
 
         self.n_fft = n_fft
         self.hop_length = hop_length
@@ -120,14 +119,20 @@ class MelSpec(nn.Module):
         self.n_mel_channels = n_mel_channels
         self.target_sample_rate = target_sample_rate
 
-        if mel_spec_type == "vocos":
-            self.extractor = get_vocos_mel_spectrogram
-        elif mel_spec_type == "bigvgan":
-            self.extractor = get_bigvgan_mel_spectrogram
+        if mel_spec_type not in ["vocos", "bigvgan"]:
+            self.extractor = None
+            print(f"Skipping mel_spec initialization due to unsupported type: {mel_spec_type}")
+        else:
+            if mel_spec_type == "vocos":
+                self.extractor = get_vocos_mel_spectrogram
+            elif mel_spec_type == "bigvgan":
+                self.extractor = get_bigvgan_mel_spectrogram
 
         self.register_buffer("dummy", torch.tensor(0), persistent=False)
 
     def forward(self, wav):
+        if self.extractor is None:
+            raise ValueError("MelSpec extractor is not initialized. Check mel_spec_type.")
         if self.dummy.device != wav.device:
             self.to(wav.device)
 
@@ -141,6 +146,7 @@ class MelSpec(nn.Module):
         )
 
         return mel
+
 
 
 # sinusoidal position embedding

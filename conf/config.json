@@ -1,0 +1,12 @@
+{
+    "zmq_url": "tcp://*:5555",
+    "device": "cuda",
+    "vocab_file": "/app/F5TTS/src/f5_tts/model/vocab.txt",
+    "modelname": "F5-TTS",
+    "voices": {
+        "main": {
+            "ref_audio": "audio_teste.wav",
+            "ref_text": "Seu amor, DF, Raimundo Alves, com quem eu falo?  Oi, \u00e9 a enfermeira Let\u00edcia, do Trauma.  Quero pedir uma remo\u00e7\u00e3o.  \u00c9 o primeiro contato?  \u00c9.  \u00c9 um transporte?  \u00c9, transporte para fazer tomografia.  Qual o hospital de origem?  Hospital de base.  E o hospital de destino?  H-RAM.  Qual o nome do paciente?  Jos\u00e9 Jorge da Silva.  Qual a idade dele?  61.  Correto.  Enfermeira Let\u00edcia, confirmando os dados, o hospital de origem \u00e9 o hospital de base do DF.  Sim.  E o hospital de destino \u00e9 o H-RAM.  Isso.  Hospital Regional da Zona Norte, n\u00e3o \u00e9 isso?  Sim, \u00e9 Centro de Trauma do Hospital de Base.  Correto.  O nome do paciente \u00e9 Jos\u00e9 Jorge da Silva, 61 anos.  Isso.  \u00c9 um transporte?  Isso.  Aguarde em linha que eu vou vir para o setor respons\u00e1vel.  T\u00e1 bem, obrigada.  Pe\u00e7o que n\u00e3o desliga. Aguarde em linha.  T\u00e1, obrigada.  Obrigada."
+        }
+    }
+}

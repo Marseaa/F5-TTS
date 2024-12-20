@@ -1,14 +1,11 @@
 import sys
 sys.path.append('/app/F5TTS/src')
 
-import argparse
-import codecs
-import re
+import argparse, codecs, re, tomli
 from pathlib import Path
 
 import numpy as np
 import soundfile as sf
-import tomli
 from cached_path import cached_path
 
 from f5_tts.model import DiT, UNetT
@@ -39,6 +36,35 @@ speed = 1.0
 
 class F5TTS:
     def __init__(self):
+
+        config_file = '/app/conf/config.json'
+        if not os.path.exists(config_file):
+            print("Criando arquivo de configuração padrão...")
+            os.makedirs(os.path.dirname(config_file), exist_ok=True)
+            with open(config_file, 'w') as f:
+                default_config = {
+                    "zmq_url": "tcp://*:5555",
+                    "device": "cuda",
+                    "vocab_file": "/app/F5TTS/src/f5_tts/model/vocab.txt",
+                    "modelname": "F5-TTS",
+                    "mel_spec_type": "vocos",
+                    "voices": {
+                        "main": {
+                            "ref_audio": "audio_teste.wav",
+                            "ref_text": (
+                                "Seu amor, DF, Raimundo Alves, com quem eu falo?  Oi, é a enfermeira Letícia, do Trauma.  "
+                                "Quero pedir uma remoção.  É o primeiro contato?  É.  É um transporte?  É, transporte para fazer tomografia.  "
+                                "Qual o hospital de origem?  Hospital de base.  E o hospital de destino?  H-RAM.  Qual o nome do paciente?  "
+                                "José Jorge da Silva.  Qual a idade dele?  61.  Correto.  Enfermeira Letícia, confirmando os dados, o hospital "
+                                "de origem é o hospital de base do DF.  Sim.  E o hospital de destino é o H-RAM.  Isso.  Hospital Regional da "
+                                "Zona Norte, não é isso?  Sim, é Centro de Trauma do Hospital de Base.  Correto.  O nome do paciente é José "
+                                "Jorge da Silva, 61 anos.  Isso.  É um transporte?  Isso.  Aguarde em linha que eu vou vir para o setor responsável.  "
+                                "Tá bem, obrigada.  Peço que não desliga. Aguarde em linha.  Tá, obrigada.  Obrigada."
+                            )
+                        }
+                    }
+                }
+                json.dump(default_config, f, indent=4)
         self.config = getConfig()
         self.zmq_url = self.config.zmq_url
         self.replier = ZmqReplier(self.config.zmq_url, self.generate)
@@ -51,28 +77,19 @@ class F5TTS:
         print('ended ...')
 
     def load_model(self):
-        # load models
         ckpt_file = ''
-        if self.config.modelname == "F5-TTS":
-            model_cls = DiT
-            model_cfg = dict(dim=1024, depth=22, heads=16, ff_mult=2, text_dim=512, conv_layers=4)
-            if ckpt_file == "":
-                repo_name = "F5-TTS"
-                exp_name = "F5TTS_Base"
-                ckpt_step = 1200000
-                ckpt_file = str(cached_path(f"hf://SWivid/{repo_name}/{exp_name}/model_{ckpt_step}.safetensors"))
+        model_cls = DiT
+        model_cfg = dict(dim=1024, depth=22, heads=16, ff_mult=2, text_dim=512, conv_layers=4)
+        if ckpt_file == "":
+            repo_name = "F5-TTS"
+            exp_name = "F5TTS_Base"
+            ckpt_step = 1200000
+            ckpt_file = str(cached_path(f"hf://SWivid/{repo_name}/{exp_name}/model_{ckpt_step}.safetensors"))
 
-        elif self.config.modelname == "E2-TTS":
-            model_cls = UNetT
-            model_cfg = dict(dim=1024, depth=24, heads=16, ff_mult=4)
-            if ckpt_file == "":
-                repo_name = "E2-TTS"
-                exp_name = "E2TTS_Base"
-                ckpt_step = 1200000
-                ckpt_file = str(cached_path(f"hf://SWivid/{repo_name}/{exp_name}/model_{ckpt_step}.safetensors"))
-
-        self.model = load_model(model_cls, model_cfg, ckpt_file, self.config.vocab_file)
+        self.model, self.vocab, _ = load_model(model_cls, model_cfg, ckpt_file, self.config.vocab_file)
         self.model = self.model.to(self.config.device)
+        self.mel_spec = "vocos"
+        print("Modelo carregado!")
 
     def generate(self, d):
         msg = d.decode('utf-8')
@@ -164,11 +181,10 @@ class F5TTS:
             fn = temp_file(suffix='.wav')
             with open(fn, "wb") as f:
                 sf.write(f.name, final_wave, final_sample_rate)
-                # Remove silence
                 if remove_silence:
                     remove_silence_for_generated_wav(f.name)
-            return fn
-        
+            return fn       
+
 if __name__ == '__main__':
     tts = F5TTS()
     while True:
@@ -180,97 +196,3 @@ if __name__ == '__main__':
             t2 = time()
             print(f'{f}, cost {t2-t1} seconds')
 
-""" 
-import subprocess
-import os
-
-def generate_audio(model_dir, use_safetensors=True):
-    try:
-        # Define o nome do arquivo do modelo
-        model_file = "model_1200000.safetensors" if use_safetensors else "model_1200000.pt"
-        model_path = os.path.join(model_dir, model_file)
-
-        # Verifica se o caminho do modelo é válido
-        if not os.path.isfile(model_path):
-            raise FileNotFoundError(f"Modelo não encontrado: {model_path}")
-
-        # Texto e áudio de referência
-        ref_text = (
-            "Seu amor, DF, Raimundo Alves, com quem eu falo?  Oi, é a enfermeira Letícia, do Trauma.  "
-            "Quero pedir uma remoção.  É o primeiro contato?  É.  É um transporte?  É, transporte para fazer tomografia.  "
-            "Qual o hospital de origem?  Hospital de base.  E o hospital de destino?  H-RAM.  Qual o nome do paciente?  "
-            "José Jorge da Silva.  Qual a idade dele?  61.  Correto.  Enfermeira Letícia, confirmando os dados, o hospital "
-            "de origem é o hospital de base do DF.  Sim.  E o hospital de destino é o H-RAM.  Isso.  Hospital Regional da "
-            "Zona Norte, não é isso?  Sim, é Centro de Trauma do Hospital de Base.  Correto.  O nome do paciente é José "
-            "Jorge da Silva, 61 anos.  Isso.  É um transporte?  Isso.  Aguarde em linha que eu vou vir para o setor responsável.  "
-            "Tá bem, obrigada.  Peço que não desliga. Aguarde em linha.  Tá, obrigada.  Obrigada."
-        )
-        ref_audio = "audio_teste.wav"
-
-        # Comando de geração
-        command = [
-            "f5-tts_infer-cli",
-            "--model", model_path,
-            "--ref_audio", ref_audio,
-            "--ref_text", ref_text,
-            "--gen_text", ref_text
-        ]
-        result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        return result.stdout
-    except Exception as e:
-        return f"Erro ao gerar áudio: {str(e)}"
-
-if __name__ == "__main__":
-    model_dir = "/app/ckpts/F5TTS_Base"  # Caminho fixo do modelo
-    use_safetensors = True  # Alternar entre .safetensors e .pt conforme necessário
-
-    output_audio_path = "output_audio/audio_2.wav"
-    output_audio = generate_audio(model_dir, use_safetensors)
-
-    # Verifica se a saída é binária antes de salvar
-    if isinstance(output_audio, bytes):
-        os.makedirs(os.path.dirname(output_audio_path), exist_ok=True)
-        with open(output_audio_path, 'wb') as f:
-            f.write(output_audio)
-        print(f"Áudio gerado e salvo em: {output_audio_path}")
-    else:
-        # Caso contrário, imprime a mensagem de erro
-        print(f"Erro na geração do áudio: {output_audio}")
-import subprocess
-import os
-
-def generate_audio(model):
-    try:
-        ref_text = (
-            "Seu amor, DF, Raimundo Alves, com quem eu falo?  Oi, é a enfermeira Letícia, do Trauma.  "
-            "Quero pedir uma remoção.  É o primeiro contato?  É.  É um transporte?  É, transporte para fazer tomografia.  "
-            "Qual o hospital de origem?  Hospital de base.  E o hospital de destino?  H-RAM.  Qual o nome do paciente?  "
-            "José Jorge da Silva.  Qual a idade dele?  61.  Correto.  Enfermeira Letícia, confirmando os dados, o hospital "
-            "de origem é o hospital de base do DF.  Sim.  E o hospital de destino é o H-RAM.  Isso.  Hospital Regional da "
-            "Zona Norte, não é isso?  Sim, é Centro de Trauma do Hospital de Base.  Correto.  O nome do paciente é José "
-            "Jorge da Silva, 61 anos.  Isso.  É um transporte?  Isso.  Aguarde em linha que eu vou vir para o setor responsável.  "
-            "Tá bem, obrigada.  Peço que não desliga. Aguarde em linha.  Tá, obrigada.  Obrigada."
-        )
-        ref_audio = "audio_teste.wav"
-        command = [
-            "f5-tts_infer-cli",
-            "--model", model,
-            "--ref_audio", ref_audio,
-            "--ref_text", ref_text,
-            "--gen_text", ref_text
-        ]
-        result = subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        return result.stdout
-    except Exception as e:
-        return f"Erro ao gerar áudio: {str(e)}"
-
-if __name__ == "__main__":
-    model = "F5-TTS"
-    output_audio_path = "output_audio/audio_2.wav"
-    output_audio = generate_audio(model)
-    os.makedirs(os.path.dirname(output_audio_path), exist_ok=True)
-    with open(output_audio_path, 'wb') as f:
-        f.write(output_audio)
-    print(f"Áudio gerado e salvo em: {output_audio_path}")
-
-"""

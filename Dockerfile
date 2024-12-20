@@ -48,7 +48,7 @@ RUN git clone https://github.com/SWivid/F5-TTS.git \
     && pip install -e . --no-cache-dir
 
 RUN pip install appPublic
-RUN pip install statsmodels
+RUN pip install statsmodels pyzmq
 
 ENV PYTHONPATH $PYTHONPATH:/app/F5TTS
 
